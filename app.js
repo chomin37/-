@@ -5,7 +5,7 @@ const configured = /^https:\/\/.+\.supabase\.co\/?$/.test(cfg.supabaseUrl||'') &
 let db, user, profile, workouts=[], logs=[], members=[], allLogs=[], selectedWeek=1, editExercises=[];
 const weekNames=['일','월','화','수','목','금','토'];
 const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const email = no => `${no.toLowerCase()}@members.ablegym.invalid`;
+const email = no => `${no.toLowerCase()}@members.ablegym.com`;
 const msg = (s, error=false) => { const el=$('authMsg');el.textContent=s;el.style.color=error?'#b43d44':'#667788';};
 const notify = (s)=>alert(s);
 function show(id){['setup','auth','app'].forEach(k=>$(k).classList.toggle('hidden',k!==id));}
