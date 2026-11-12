@@ -429,10 +429,25 @@ function calInit() {
 
 calInit();
 
-(async () => {
-  const { data: { session } } = await db.auth.getSession();
 
-  if (session) {
-    await calLoad();
+(async () => {
+  try {
+    const { data: { session }, error } =
+      await db.auth.getSession();
+
+    if (error) throw error;
+
+    if (session) {
+      user = session.user;
+      await loadData();
+      show('app');
+      await calLoad();
+    } else {
+      show('auth');
+    }
+  } catch (error) {
+    console.error('초기 로그인 확인 오류:', error);
+    show('auth');
   }
 })();
+
