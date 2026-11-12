@@ -74,47 +74,38 @@ function renderMembers(){
  }).join('');
  document.querySelectorAll('[data-member-frequency]').forEach(s=>s.onchange=async()=>{const {error}=await db.from('profiles').update({frequency:Number(s.value)}).eq('id',s.dataset.memberFrequency);if(error)notify(error.message);await loadMembers();});
 }
+
 async function loadTrainerOptions() {
   const select = $('newTrainer');
- if (!select) {
-  alert('트레이너 선택창을 찾지 못했습니다.');
-  return;
-}
-if (!db) {
-  alert('Supabase 연결이 없습니다.');
-  return;
-}
-const { data, error } = await db
-  .from('trainers')
-  .select('id, name')
-  .eq('is_active', true)
-  .order('name');
-alert(
-  error
-    ? '조회 오류: ' + error.message
-    : '조회된 트레이너 수: ' + (data || []).length
-);
-if (error) {
-  alert('조회 오류: ' + error.message);
-  return;
-}
 
-alert('트레이너 조회 성공: ' + data.length + '명');
-  alert('트레이너 조회 오류: ' + error.message);
-  return;
-}
-
-alert('조회된 트레이너 수: ' + (data || []).length);
+  if (!select) return;
 
   select.innerHTML =
     '<option value="">담당 트레이너 없음</option>';
 
-  (data || []).forEach(t => {
-    const option = document.createElement('option');
-    option.value = t.id;
-    option.textContent = t.name;
-    select.appendChild(option);
-  });
+  try {
+    const { data, error } = await db
+      .from('trainers')
+      .select('id, name')
+      .eq('is_active', true)
+      .order('name');
+
+    if (error) {
+      console.error('트레이너 조회 오류:', error);
+      return;
+    }
+
+    (data || []).forEach(t => {
+      const option = document.createElement('option');
+      option.value = t.id;
+      option.textContent = t.name;
+      select.appendChild(option);
+    });
+
+  } catch (error) {
+    console.error('트레이너 목록 오류:', error);
+  }
+}
 
 async function createMember(ev){
 
