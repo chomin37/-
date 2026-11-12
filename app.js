@@ -191,6 +191,7 @@ async function changeAdminPassword() {
 
 
 async function login(ev) {
+  alert('로그인 버튼이 정상적으로 작동합니다.');
   ev.preventDefault();
 
   const no = $('memberNo').value.trim().toLowerCase();
