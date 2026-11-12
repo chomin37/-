@@ -76,13 +76,24 @@ function renderMembers(){
 }
 async function loadTrainerOptions() {
   const select = $('newTrainer');
-  if (!select || !db) return;
+ if (!select) {
+  alert('트레이너 선택창을 찾지 못했습니다.');
+  return;
+}
+if (!db) {
+  alert('Supabase 연결이 없습니다.');
+  return;
+}
 const { data, error } = await db
   .from('trainers')
   .select('id, name')
   .eq('is_active', true)
   .order('name');
-
+alert(
+  error
+    ? '조회 오류: ' + error.message
+    : '조회된 트레이너 수: ' + (data || []).length
+);
 if (error) {
   console.error('트레이너 목록 조회 실패:', error);
   alert('트레이너 조회 오류: ' + error.message);
