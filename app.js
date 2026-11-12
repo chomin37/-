@@ -95,7 +95,11 @@ alert(
     : '조회된 트레이너 수: ' + (data || []).length
 );
 if (error) {
-  console.error('트레이너 목록 조회 실패:', error);
+  alert('조회 오류: ' + error.message);
+  return;
+}
+
+alert('트레이너 조회 성공: ' + data.length + '명');
   alert('트레이너 조회 오류: ' + error.message);
   return;
 }
