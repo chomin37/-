@@ -95,12 +95,27 @@ async function loadTrainerOptions() {
       return;
     }
 
-    (data || []).forEach(t => {
-      const option = document.createElement('option');
-      option.value = t.id;
-      option.textContent = t.name;
-      select.appendChild(option);
-    });
+    
+const uniqueTrainers = new Map();
+
+(data || []).forEach(t => {
+  const name = (t.name || '').trim();
+
+  if (name && !uniqueTrainers.has(name)) {
+    uniqueTrainers.set(name, t);
+  }
+});
+
+select.innerHTML =
+  '<option value="">담당 트레이너 없음</option>';
+
+uniqueTrainers.forEach(t => {
+  const option = document.createElement('option');
+  option.value = t.id;
+  option.textContent = t.name;
+  select.appendChild(option);
+});
+
 
   } catch (error) {
     console.error('트레이너 목록 오류:', error);
