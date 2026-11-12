@@ -25,8 +25,6 @@ async function loadData(){
   renderEditor();
   await loadMembers();
    await loadTrainerOptions();
-   // 로그인 오류 수정 - 2026-11-12
-  await loadTrainerOptions();
 }
 }
 function renderMember(){
@@ -85,10 +83,13 @@ const { data, error } = await db
   .eq('is_active', true)
   .order('name');
 
-  if (error) {
-    console.error('트레이너 목록 조회 실패:', error);
-    return;
-  }
+if (error) {
+  console.error('트레이너 목록 조회 실패:', error);
+  alert('트레이너 조회 오류: ' + error.message);
+  return;
+}
+
+alert('조회된 트레이너 수: ' + (data || []).length);
 
   select.innerHTML =
     '<option value="">담당 트레이너 없음</option>';
