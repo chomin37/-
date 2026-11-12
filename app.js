@@ -24,6 +24,7 @@ async function loadData(){
  renderMember();if(profile.role==='admin'){
   renderEditor();
   await loadMembers();
+   await loadTrainerOptions();
    // 로그인 오류 수정 - 2026-11-12
   await loadTrainerOptions();
 }
