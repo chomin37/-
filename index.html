@@ -37,5 +37,20 @@
 
   <p id="wrStatus"></p>
   <div id="wrHistory"></div>
-</div></main><div class="footer">ABLE GYM START 28 · 통증이 있으면 운동을 중단하고 담당 트레이너에게 문의하세요.</div>
+</div>
+<div id="workoutCalendar" class="card hidden">
+  <h2>나의 운동 달력</h2>
+  <p class="muted">운동 기록과 출석 현황을 확인하세요.</p>
+
+  <div class="flex between">
+    <button type="button" id="calPrev" class="secondary">이전 달</button>
+    <h3 id="calMonth"></h3>
+    <button type="button" id="calNext" class="secondary">다음 달</button>
+  </div>
+
+  <div id="calSummary"></div>
+  <div id="calGrid"></div>
+  <p id="calStatus" class="muted"></p>
+</div>
+</main><div class="footer">ABLE GYM START 28 · 통증이 있으면 운동을 중단하고 담당 트레이너에게 문의하세요.</div>
 <script src="config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script><script src="app.js"></script></body></html>
