@@ -371,3 +371,11 @@ function calInit() {
 }
 
 calInit();
+
+(async () => {
+  const { data: { session } } = await db.auth.getSession();
+
+  if (session) {
+    await calLoad();
+  }
+})();
