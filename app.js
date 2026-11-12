@@ -82,6 +82,56 @@ async function createMember(ev){
  $('createMsg').textContent=upErr?'회원 계정은 생성되었지만 프로그램 배정 실패: '+upErr.message:`회원 ${no} 생성 완료. 초기 비밀번호를 안전하게 전달하세요.`;
  $('createMember').reset();await loadMembers();
 }
+
+async function changeAdminPassword() {
+  if (!user || profile?.role !== 'admin') {
+    alert('관리자만 변경할 수 있습니다.');
+    return;
+  }
+
+  const current = prompt('현재 비밀번호를 입력하세요.');
+  if (current === null) return;
+  if (!current) {
+    alert('현재 비밀번호를 입력해주세요.');
+    return;
+  }
+
+  const next = prompt('새 비밀번호를 입력하세요. (8자 이상)');
+  if (next === null) return;
+  if (next.length < 8) {
+    alert('새 비밀번호는 8자 이상이어야 합니다.');
+    return;
+  }
+
+  const confirmPassword = prompt('새 비밀번호를 다시 입력하세요.');
+  if (confirmPassword !== next) {
+    alert('새 비밀번호가 일치하지 않습니다.');
+    return;
+  }
+
+  const { error: verifyError } =
+    await db.auth.signInWithPassword({
+      email: user.email,
+      password: current
+    });
+
+  if (verifyError) {
+    alert('현재 비밀번호가 올바르지 않습니다.');
+    return;
+  }
+
+  const { error } = await db.auth.updateUser({
+    password: next
+  });
+
+  if (error) {
+    alert('비밀번호 변경 실패: ' + error.message);
+    return;
+  }
+
+  alert('비밀번호가 변경되었습니다.');
+}
+
 async function login(ev){ev.preventDefault();const no=$('memberNo').value.trim().toLowerCase();if(!validNo(no)){msg('회원번호 형식이 올바르지 않습니다.',true);return;}msg('로그인 중...');const {error}=await db.auth.signInWithPassword({email:email(no),password:$('password').value});if(error){msg('회원번호 또는 비밀번호를 확인해주세요.',true);return;}await enter();}
 async function enter(){const {data:{user:u}}=await db.auth.getUser();if(!u){show('auth');return;}user=u;try{await loadData();show('app');$('logout').classList.remove('hidden');}catch(e){show('auth');msg('계정 또는 데이터 설정 오류: '+e.message,true);}}
 async function init(){if(!configured){show('setup');return;}db=window.supabase.createClient(cfg.supabaseUrl,cfg.supabaseAnonKey);$('loginForm').onsubmit=login;$('logout').onclick=async()=>{await db.auth.signOut();user=null;profile=null;$('logout').classList.add('hidden');$('identity').textContent='';show('auth');};
