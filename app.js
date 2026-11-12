@@ -25,7 +25,7 @@ async function loadData(){
   renderEditor();
   await loadMembers();
    // 로그인 오류 수정 - 2026-11-12
- // await loadTrainerOptions();
+  await loadTrainerOptions();
 }
 }
 function renderMember(){
@@ -75,7 +75,6 @@ function renderMembers(){
  }).join('');
  document.querySelectorAll('[data-member-frequency]').forEach(s=>s.onchange=async()=>{const {error}=await db.from('profiles').update({frequency:Number(s.value)}).eq('id',s.dataset.memberFrequency);if(error)notify(error.message);await loadMembers();});
 }
-async function createMember(ev){
 async function loadTrainerOptions() {
   const select = $('newTrainer');
   if (!select || !db) return;
@@ -101,6 +100,8 @@ async function loadTrainerOptions() {
     select.appendChild(option);
   });
 }
+async function createMember(ev){
+
 
  ev.preventDefault();const no=$('newNo').value.trim().toLowerCase(),name=$('newName').value.trim(),password=$('newPassword').value,frequency=Number($('newFrequency').value);
   const trainerId = $('newTrainer').value || null;
