@@ -139,4 +139,107 @@ async function init(){if(!configured){show('setup');return;}db=window.supabase.c
  $('editFrequency').onchange=renderEditor;$('editWeek').onchange=renderEditor;$('editDay').onchange=fillEditor;
  $('addExercise').onclick=()=>{readExercises();editExercises.push({name:'',sets:2,reps:'12회'});renderExercises();};$('saveWorkout').onclick=saveWorkout;$('createMember').onsubmit=createMember;$('refreshMembers').onclick=loadMembers;
  const {data:{session}}=await db.auth.getSession();if(session)await enter();else show('auth');}
+
+const wrToday = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+};
+
+const wrEsc = v => String(v ?? '').replace(/[&<>"']/g, c => ({
+  '&':'&amp;', '<':'&lt;', '>':'&gt;',
+  '"':'&quot;', "'":'&#39;'
+}[c]));
+
+function wrRefreshWorkouts() {
+  if (!profile) return;
+  const own = workouts.filter(w => w.frequency === profile.frequency);
+  $('wrWorkout').innerHTML = own.map(w =>
+    `<option value="${w.id}">${wrEsc(w.week)}주차 ${wrEsc(w.day)}일차 · ${wrEsc(w.day_name)}</option>`
+  ).join('');
+  wrRefreshExercises();
+}
+
+function wrRefreshExercises() {
+  const w = workouts.find(x => String(x.id) === $('wrWorkout').value);
+  $('wrExercise').innerHTML = (w?.exercises || []).map((x,i) =>
+    `<option value="${i}">${wrEsc(x.name)}</option>`
+  ).join('');
+}
+
+async function wrLoad() {
+  if (!user) return;
+  const {data,error} = await db.from('exercise_set_logs')
+    .select('performed_on,exercise_name,set_number,weight_kg,reps')
+    .eq('member_id',user.id)
+    .order('performed_on',{ascending:false})
+    .order('set_number',{ascending:true})
+    .limit(100);
+
+  if (error) {
+    $('wrStatus').textContent = '기록 조회 오류: ' + error.message;
+    return;
+  }
+
+  $('wrHistory').innerHTML = (data || []).map(r =>
+    `<div style="padding:8px 0;border-bottom:1px solid #eee">
+      ${wrEsc(r.performed_on)} · ${wrEsc(r.exercise_name)} ·
+      ${r.set_number}세트 · ${r.weight_kg}kg × ${r.reps}회
+    </div>`
+  ).join('') || '<p>아직 저장한 운동 기록이 없습니다.</p>';
+}
+
+async function wrSave(e) {
+  e.preventDefault();
+
+  const w = workouts.find(x => String(x.id) === $('wrWorkout').value);
+  const idx = Number($('wrExercise').value);
+  const ex = w?.exercises?.[idx];
+
+  const date = $('wrDate').value;
+  const set = Number($('wrSet').value);
+  const kg = Number($('wrKg').value);
+  const reps = Number($('wrReps').value);
+
+  if (!user || !w || !ex ||
+      !/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(date) ||
+      !Number.isInteger(set) || set < 1 || set > 30 ||
+      $('wrKg').value.trim() === '' ||
+      !Number.isFinite(kg) || kg < 0 || kg > 2000 ||
+      $('wrReps').value.trim() === '' ||
+      !Number.isInteger(reps) || reps < 0 || reps > 1000) {
+    $('wrStatus').textContent = '운동, 날짜, 세트, 무게, 횟수를 확인해주세요.';
+    return;
+  }
+
+  const row = {
+    member_id:user.id,
+    workout_id:w.id,
+    performed_on:date,
+    exercise_index:idx,
+    exercise_name:ex.name,
+    set_number:set,
+    weight_kg:kg,
+    reps
+  };
+
+  const {error} = await db.from('exercise_set_logs')
+    .upsert(row,{
+      onConflict:'member_id,workout_id,performed_on,exercise_index,set_number'
+    });
+
+  if (error) {
+    $('wrStatus').textContent = '저장 실패: ' + error.message;
+    return;
+  }
+
+  $('wrStatus').textContent = '저장 완료! 같은 날짜·운동·세트 번호로 저장하면 수정됩니다.';
+  await wrLoad();
+}
+
+function wrInit() {
+  $('wrDate').value = wrToday();
+  $('wrWorkout').onchange = wrRefreshExercises;
+  $('wrForm').onsubmit = wrSave;
+}
+
 init().catch(e=>{show('setup');$('setup').append(document.createTextNode(' 오류: '+e.message));});
