@@ -52,5 +52,23 @@
   <div id="calGrid"></div>
   <p id="calStatus" class="muted"></p>
 </div>
+<!-- 트레이너 전용 관리 화면 -->
+<div id="trainerView" class="card hidden">
+  <h2>담당 회원 관리</h2>
+  <p class="muted">담당 회원과 운동 기록을 확인하세요.</p>
+
+  <button type="button" id="trainerRefresh">
+    담당 회원 새로고침
+  </button>
+
+  <p id="trainerStatus" class="muted"></p>
+
+  <h3>나의 담당 회원</h3>
+  <div id="trainerMembers"></div>
+
+  <h3>회원 운동 기록</h3>
+  <div id="trainerLogs"></div>
+</div>
+
 </main><div class="footer">ABLE GYM START 28 · 통증이 있으면 운동을 중단하고 담당 트레이너에게 문의하세요.</div>
 <script src="config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script><script src="app.js"></script></body></html>
