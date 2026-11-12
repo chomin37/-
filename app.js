@@ -275,6 +275,7 @@ async function calLoad() {
 }
 
 function calRender() {
+  alert('달력 실행 확인');
   const year = calCurrent.getFullYear();
   const month = calCurrent.getMonth();
 
