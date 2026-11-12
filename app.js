@@ -467,8 +467,23 @@ function calInit() {
   };
 }
 
-calInit();
-init();
+
+try {
+  calInit();
+  alert('1단계: 달력 초기화 성공');
+
+  init()
+    .then(() => {
+      alert('2단계: 앱 초기화 성공');
+    })
+    .catch(error => {
+      alert('앱 초기화 오류: ' + error.message);
+    });
+
+} catch (error) {
+  alert('실행 오류: ' + error.message);
+}
+
 
 
 
