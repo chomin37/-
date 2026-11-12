@@ -251,3 +251,123 @@ function wrInit() {
 
 
 init().catch(e=>{show('setup');$('setup').append(document.createTextNode(' 오류: '+e.message));});
+
+let calCurrent = new Date();
+let calRecords = [];
+
+async function calLoad() {
+  if (!user) return;
+
+  const { data, error } = await db
+    .from('exercise_set_logs')
+    .select('performed_on')
+    .eq('member_id', user.id)
+    .order('performed_on', { ascending: false })
+    .limit(10000);
+
+  if (error) {
+    $('calStatus').textContent = '달력 조회 실패: ' + error.message;
+    return;
+  }
+
+  calRecords = [...new Set((data || []).map(r => r.performed_on))];
+  calRender();
+}
+
+function calRender() {
+  const year = calCurrent.getFullYear();
+  const month = calCurrent.getMonth();
+
+  $('calMonth').textContent = `${year}년 ${month + 1}월`;
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  const recorded = new Set(calRecords);
+  const today = new Date();
+  const lastDay = (year === today.getFullYear() &&
+                   month === today.getMonth())
+    ? today.getDate()
+    : (new Date(year, month + 1, 1) > today ? 0 : daysInMonth);
+
+  const monthlyDates = Array.from(
+    { length: daysInMonth },
+    (_, i) => `${year}-${String(month + 1).padStart(2, '0')}-${String(i + 1).padStart(2, '0')}`
+  );
+
+  const count = monthlyDates.filter(d => recorded.has(d)).length;
+  const target = profile?.frequency ? Number(profile.frequency) * 4 : 12;
+  const rate = target > 0 ? Math.round(count / target * 100) : 0;
+
+  $('calSummary').textContent =
+    `이번 달 운동 ${count}일 / 목표 ${target}일 · 목표 달성률 ${rate}%`;
+
+  const grid = $('calGrid');
+  grid.style.display = 'grid';
+  grid.style.gridTemplateColumns = 'repeat(7, minmax(0, 1fr))';
+  grid.style.gap = '5px';
+
+  grid.innerHTML = '';
+
+  ['일','월','화','수','목','금','토'].forEach(d => {
+    const el = document.createElement('div');
+    el.textContent = d;
+    el.style.textAlign = 'center';
+    el.style.fontWeight = 'bold';
+    grid.appendChild(el);
+  });
+
+  for (let i = 0; i < firstDay; i++) {
+    grid.appendChild(document.createElement('div'));
+  }
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const date = monthlyDates[day - 1];
+    const done = recorded.has(date);
+    const el = document.createElement('div');
+
+    el.textContent = done ? `${day} ✓` : String(day);
+    el.style.padding = '10px 2px';
+    el.style.textAlign = 'center';
+    el.style.borderRadius = '8px';
+    el.style.background = done ? '#d5f5e8' : '#f2f4f6';
+    el.style.color = done ? '#12634b' : '#333';
+
+    grid.appendChild(el);
+  }
+
+  $('calStatus').textContent =
+    '운동 세트 기록이 있는 날짜에 체크 표시됩니다.';
+}
+
+function calInit() {
+  $('calPrev').onclick = () => {
+    calCurrent.setMonth(calCurrent.getMonth() - 1, 1);
+    calRender();
+  };
+
+  $('calNext').onclick = () => {
+    calCurrent.setMonth(calCurrent.getMonth() + 1, 1);
+    calRender();
+  };
+
+  const originalEnterForCalendar = enter;
+
+  enter = async function() {
+    await originalEnterForCalendar();
+
+    if (user && profile) {
+      $('workoutCalendar').classList.remove('hidden');
+      await calLoad();
+    }
+  };
+
+  const originalWrSaveForCalendar = wrSave;
+
+  wrSave = async function(ev) {
+    await originalWrSaveForCalendar(ev);
+    await calLoad();
+  };
+}
+
+calInit();
