@@ -21,7 +21,11 @@ async function loadData(){
  $('assignment').textContent=`START ${profile.frequency} · 주 ${profile.frequency}회 / 4주`;
  $('rolePill').textContent=profile.role==='admin'?'관리자':'회원';
  document.querySelector('[data-tab="admin"]').classList.toggle('hidden',profile.role!=='admin');
- renderMember();if(profile.role==='admin'){renderEditor();await loadMembers();}
+ renderMember();if(profile.role==='admin'){
+  renderEditor();
+  await loadMembers();
+  await loadTrainerOptions();
+}
 }
 function renderMember(){
  const own=workouts.filter(w=>w.frequency===profile.frequency);
@@ -71,6 +75,32 @@ function renderMembers(){
  document.querySelectorAll('[data-member-frequency]').forEach(s=>s.onchange=async()=>{const {error}=await db.from('profiles').update({frequency:Number(s.value)}).eq('id',s.dataset.memberFrequency);if(error)notify(error.message);await loadMembers();});
 }
 async function createMember(ev){
+async function loadTrainerOptions() {
+  const select = $('newTrainer');
+  if (!select || !db) return;
+
+  const { data, error } = await db
+    .from('profiles')
+    .select('id, display_name')
+    .eq('role', 'trainer')
+    .order('display_name');
+
+  if (error) {
+    console.error('트레이너 목록 조회 실패:', error);
+    return;
+  }
+
+  select.innerHTML =
+    '<option value="">담당 트레이너 없음</option>';
+
+  (data || []).forEach(t => {
+    const option = document.createElement('option');
+    option.value = t.id;
+    option.textContent = t.display_name;
+    select.appendChild(option);
+  });
+}
+
  ev.preventDefault();const no=$('newNo').value.trim().toLowerCase(),name=$('newName').value.trim(),password=$('newPassword').value,frequency=Number($('newFrequency').value);
  if(!validNo(no)||!name||password.length<8){$('createMsg').textContent='입력값을 확인해주세요.';return;}
  const temp=window.supabase.createClient(cfg.supabaseUrl,cfg.supabaseAnonKey,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
