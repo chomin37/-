@@ -133,7 +133,14 @@ async function changeAdminPassword() {
 }
 
 async function login(ev){ev.preventDefault();const no=$('memberNo').value.trim().toLowerCase();if(!validNo(no)){msg('회원번호 형식이 올바르지 않습니다.',true);return;}msg('로그인 중...');const {error}=await db.auth.signInWithPassword({email:email(no),password:$('password').value});if(error){msg('회원번호 또는 비밀번호를 확인해주세요.',true);return;}await enter();}
-async function enter(){const {data:{user:u}}=await db.auth.getUser();if(!u){show('auth');return;}user=u;try{await loadData();show('app');$('logout').classList.remove('hidden');}catch(e){show('auth');msg('계정 또는 데이터 설정 오류: '+e.message,true);}}
+async function enter(){const {data:{user:u}}=await db.auth.getUser();if(!u){show('auth');return;}user=u;try{await loadData();
+show('app');
+if (user && profile) {
+  $('workoutRecord').classList.remove('hidden');
+  wrInit();
+  wrRefreshWorkouts();
+  await wrLoad();
+}$('logout').classList.remove('hidden');}catch(e){show('auth');msg('계정 또는 데이터 설정 오류: '+e.message,true);}}
 async function init(){if(!configured){show('setup');return;}db=window.supabase.createClient(cfg.supabaseUrl,cfg.supabaseAnonKey);$('loginForm').onsubmit=login;$('logout').onclick=async()=>{await db.auth.signOut();user=null;profile=null;$('logout').classList.add('hidden');$('identity').textContent='';show('auth');};
  document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{if(b.dataset.tab==='admin'&&profile?.role!=='admin')return;document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));$('memberView').classList.toggle('hidden',b.dataset.tab!=='member');$('adminView').classList.toggle('hidden',b.dataset.tab!=='admin');});
  $('editFrequency').onchange=renderEditor;$('editWeek').onchange=renderEditor;$('editDay').onchange=fillEditor;
@@ -241,5 +248,6 @@ function wrInit() {
   $('wrWorkout').onchange = wrRefreshExercises;
   $('wrForm').onsubmit = wrSave;
 }
+
 
 init().catch(e=>{show('setup');$('setup').append(document.createTextNode(' 오류: '+e.message));});
