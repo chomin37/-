@@ -189,7 +189,46 @@ async function changeAdminPassword() {
   alert('비밀번호가 변경되었습니다.');
 }
 
-async function login(ev){ev.preventDefault();const no=$('memberNo').value.trim().toLowerCase();if(!validNo(no)){msg('회원번호 형식이 올바르지 않습니다.',true);return;}msg('로그인 중...');const {error}=await db.auth.signInWithPassword({email:email(no),password:$('password').value});if(error){msg('회원번호 또는 비밀번호를 확인해주세요.',true);return;}await enter();}
+
+async function login(ev) {
+  ev.preventDefault();
+
+  const no = $('memberNo').value.trim().toLowerCase();
+  const password = $('password').value;
+
+  if (!validNo(no)) {
+    msg('회원번호 형식이 올바르지 않습니다.', true);
+    return;
+  }
+
+  msg('로그인 중...');
+
+  try {
+    const loginEmail = email(no);
+
+    const { data, error } = await db.auth.signInWithPassword({
+      email: loginEmail,
+      password: password
+    });
+
+    if (error) {
+      msg('로그인 오류: ' + error.message, true);
+      return;
+    }
+
+    if (!data.user) {
+      msg('로그인된 사용자 정보가 없습니다.', true);
+      return;
+    }
+
+    await enter();
+
+  } catch (error) {
+    console.error('로그인 오류:', error);
+    msg('시스템 오류: ' + error.message, true);
+  }
+}
+
 async function enter(){const {data:{user:u}}=await db.auth.getUser();if(!u){show('auth');return;}user=u;try{await loadData();
 show('app');
 if (user && profile) {
