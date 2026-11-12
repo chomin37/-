@@ -102,13 +102,22 @@ async function loadTrainerOptions() {
 }
 
  ev.preventDefault();const no=$('newNo').value.trim().toLowerCase(),name=$('newName').value.trim(),password=$('newPassword').value,frequency=Number($('newFrequency').value);
+  const trainerId = $('newTrainer').value || null;
  if(!validNo(no)||!name||password.length<8){$('createMsg').textContent='입력값을 확인해주세요.';return;}
  const temp=window.supabase.createClient(cfg.supabaseUrl,cfg.supabaseAnonKey,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
  $('createMsg').textContent='회원 생성 중...';
  const {data,error}=await temp.auth.signUp({email:email(no),password,options:{data:{display_name:name}}});
  if(error){$('createMsg').textContent='회원 생성 실패: '+error.message;return;}
  if(!data.user||!data.session){$('createMsg').textContent='이메일 확인 설정 때문에 생성이 완료되지 않았습니다. Supabase Auth에서 이메일 확인을 꺼주세요.';return;}
- const {error:upErr}=await db.from('profiles').update({frequency}).eq('id',data.user.id);
+ 
+const { error: upErr } = await db
+  .from('profiles')
+  .update({
+    frequency: frequency,
+    trainer_id: trainerId
+  })
+  .eq('id', data.user.id);
+
  $('createMsg').textContent=upErr?'회원 계정은 생성되었지만 프로그램 배정 실패: '+upErr.message:`회원 ${no} 생성 완료. 초기 비밀번호를 안전하게 전달하세요.`;
  $('createMember').reset();await loadMembers();
 }
