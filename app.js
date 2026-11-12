@@ -24,7 +24,7 @@ async function loadData(){
  renderMember();if(profile.role==='admin'){
   renderEditor();
   await loadMembers();
-  await loadTrainerOptions();
+ // await loadTrainerOptions();
 }
 }
 function renderMember(){
