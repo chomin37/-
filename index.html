@@ -6,6 +6,13 @@
 <section id="app" class="hidden"><div class="card"><div class="flex between"><div><h2 id="welcome">안녕하세요</h2><p class="muted" id="assignment"></p></div><span id="rolePill" class="pill"></span></div><div id="tabs" class="flex"><button class="tab active" data-tab="member">내 운동</button><button class="tab hidden" data-tab="admin">관리자</button></div></div>
 <div id="memberView"><div class="card"><div class="flex between"><h2>4주 운동 달성률</h2><div id="count" class="summary">0/0</div></div><div class="progress"><div id="progressBar" style="width:0%"></div></div><p class="muted">출석과 운동 완료는 별도로 체크됩니다.</p></div><div class="card"><h2>내 운동 일정</h2><div id="weekTabs" class="flex toolbar"></div><div id="memberDays"></div></div></div>
 <div id="adminView" class="hidden"><div class="card"><button type="button" id="changeAdminPassword" class="secondary" onclick="changeAdminPassword()">관리자 비밀번호 변경</button></div>><div class="card"><h2>공통 프로그램 편집</h2><p class="muted">변경하면 같은 유형의 회원에게 공통 적용됩니다. 기존 완료 기록은 유지됩니다.</p><div class="rowline"><div><label>운동 유형</label><select id="editFrequency"><option value="2">주 2회</option><option value="3">주 3회</option><option value="4">주 4회</option></select></div><div><label>주차</label><select id="editWeek"><option value="1">1주차</option><option value="2">2주차</option><option value="3">3주차</option><option value="4">4주차</option></select></div><div><label>운동일</label><select id="editDay"></select></div></div><div id="editor"></div><div class="flex"><button id="addExercise" class="secondary">+ 종목 추가</button><button id="saveWorkout">변경사항 저장</button></div></div><div class="card"><h2>회원 등록</h2><p class="muted">새 회원을 만들면 초기 비밀번호를 안전하게 전달하세요. 회원은 직접 가입할 수 없도록 화면에서 가입 기능을 제공하지 않습니다.</p><form id="createMember"><div class="grid"><div><label>회원번호</label><input id="newNo" required pattern="[A-Za-z0-9_-]{3,32}" placeholder="AG1001"></div><div><label>회원명</label><input id="newName" required maxlength="50"></div><div><label>초기 비밀번호 (8자 이상)</label><input id="newPassword" required minlength="8" type="password" autocomplete="new-password"></div><div><label>배정 프로그램</label><select id="newFrequency"><option value="2">주 2회</option><option value="3">주 3회</option><option value="4">주 4회</option></select>
+<div>
+  <label for="newTrainer">담당 트레이너</label>
+  <select id="newTrainer">
+    <option value="">담당 트레이너 없음</option>
+  </select>
+</div>
+
 <label for="newTrainer">담당 트레이너</label>
 <select id="newTrainer">
   <option value="">담당 트레이너 없음</option>
