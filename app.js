@@ -79,12 +79,11 @@ function renderMembers(){
 async function loadTrainerOptions() {
   const select = $('newTrainer');
   if (!select || !db) return;
-
-  const { data, error } = await db
-    .from('profiles')
-    .select('id, display_name')
-    .eq('role', 'trainer')
-    .order('display_name');
+const { data, error } = await db
+  .from('trainers')
+  .select('id, name')
+  .eq('is_active', true)
+  .order('name');
 
   if (error) {
     console.error('트레이너 목록 조회 실패:', error);
@@ -97,7 +96,7 @@ async function loadTrainerOptions() {
   (data || []).forEach(t => {
     const option = document.createElement('option');
     option.value = t.id;
-    option.textContent = t.display_name;
+    option.textContent = t.name;
     select.appendChild(option);
   });
 }
