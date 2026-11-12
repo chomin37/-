@@ -115,7 +115,7 @@ alert('조회된 트레이너 수: ' + (data || []).length);
     option.textContent = t.name;
     select.appendChild(option);
   });
-}
+
 async function createMember(ev){
 
 
